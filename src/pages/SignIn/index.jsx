@@ -1,47 +1,45 @@
 import { useNavigate } from 'react-router-dom'
 import './signInStyle.scss'
 import { useForm } from "react-hook-form";
-
+import { useSelector, useDispatch } from 'react-redux';
+import { loginUser, userSelector, clearState } from '../../features/UserSlices';
+import { useEffect } from 'react';
 
 function SignIn() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { register, handleSubmit, formState: { errors } } = useForm()
-  let jwt = localStorage.getItem("jwt")
-  if(jwt) {
-    navigate("/user")
-  }
+  let token = localStorage.getItem("token")
   
-  const onSubmit = async (data) => {
-    const dataLogin = data
-    
-    try {
-      const response = await fetch('http://localhost:3001/api/v1/user/login', {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json; charset=UTF-8'
-        },
-        body: JSON.stringify(dataLogin)
-      })
-      const data = await response.json();
-      if(data.body.token) {
-        localStorage.setItem("jwt", data.body.token)
-        navigate("/user")
-        if(dataLogin.remember) {
-          localStorage.setItem("email", (dataLogin.email))
-          localStorage.setItem("psw", (dataLogin.password))
-        }
-        if(!dataLogin.remember) {
-          localStorage.removeItem("email")
-          localStorage.removeItem("psw")
-        }
-        
-      }
-    } catch (error) {
-      console.log(error)
-    }  
-    
-  }
+  const { isSuccess, isError, errorMessage } = useSelector(
+    userSelector
+  );
+  const onSubmit = (data) => {
+    dispatch(loginUser(data));
+  };
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearState());
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (isError) {
+      console.log(errorMessage);
+      dispatch(clearState());
+    }
+
+    if (isSuccess) {
+      dispatch(clearState());
+      navigate('/user');
+    }
+    if(token != null) {
+      dispatch(clearState());
+      navigate("/user")
+    }
+  }, [dispatch,isError, isSuccess, errorMessage, navigate, token]);
+
   let rmb = {
     'email': localStorage.getItem("email"),
     'password': localStorage.getItem("psw")
@@ -51,7 +49,7 @@ function SignIn() {
       <section className="sign-in-content">
         <i className="fa fa-user-circle sign-in-icon"></i>
         <h1>Sign In</h1>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} method="POST">
           <div className="input-wrapper">
             <label htmlFor='email'>Email</label>
             <input 

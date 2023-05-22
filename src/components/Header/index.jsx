@@ -1,38 +1,59 @@
 import './headerStyle.scss'
 import Logo from "../../assets/argentBankLogo.webp"
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import '../../utils/font-awesome-4.7.0/scss/font-awesome.scss'
-import { UserProfile } from '../../utils/userProfile'
+import { useEffect } from "react";
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchUserBytoken, userSelector, clearState } from '../../features/UserSlices';
 
 function Header() {
+  let token = localStorage.getItem("token")
   const navigate = useNavigate()
-  const jwt = localStorage.getItem("jwt")
-  const { data } = UserProfile(jwt)
   const logout = () => {
-    localStorage.removeItem("jwt")
+    localStorage.removeItem("token")
     navigate("/signIn")
   }
+
+  const dispatch = useDispatch();
+  const { isError } = useSelector(userSelector);
+  useEffect(() => {
+    if(token != null) {
+      dispatch(fetchUserBytoken({token: token}));
+    }
+  }, [dispatch, token]);
+
+  const { userName } = useSelector(userSelector);
+  useEffect(() => {
+    return () => {
+      dispatch(clearState());
+    };
+  }, [dispatch]);
+  
+  useEffect(() => {
+    if (isError) {
+      dispatch(clearState());
+    }
+  }, [isError, dispatch]);
   let menuLink
-  if(jwt != null) {
-    const userName = data.userName
+  if(token != null) {
     menuLink = 
       <>
-      <Link className="main-nav-item" to={'/user'}>
+      <NavLink activeclassname='active' className="main-nav-item" to={'/user'}>
         <i className="fa fa-user-circle"></i>
         {userName}
-      </Link>
+      </NavLink>
       <Link className="main-nav-item" onClick={logout}>
         <i className="fa fa-sign-out"></i>
         Sign Out
       </Link>
       </>
   }
-  if(!jwt) {
+  if(!token) {
     menuLink = 
-      <Link className="main-nav-item" to={'/signIn'}>
+      <NavLink activeclassname='active' className="main-nav-item" to={'/signIn'}>
         <i className="fa fa-user-circle"></i>
         Sign In
-      </Link>
+      </NavLink>
       
   }
     return (
