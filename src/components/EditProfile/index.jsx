@@ -4,18 +4,15 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux'
 import { Loader, LoaderWrapper } from "../../utils/loader";
 import { userSelector, clearState, updateUserBytoken } from "../../features/UserSlices";
-import { useNavigate } from "react-router-dom";
 
 function EditProfile() {
   const { register, handleSubmit, formState: { errors } } = useForm()
-  //let token = localStorage.getItem("token")
   const [visible, setVisible] = useState('close')
   const [message, setMessage] = useState("")
   const setCollapse = () => {
     setVisible(visible === 'close' ? 'open' : 'close')
     setMessage('')
   }
-  const navigate = useNavigate()
   const dispatch = useDispatch();
   const { isFetching, isSuccess, isError, errorMessage } = useSelector(userSelector);
   useEffect(() => {
@@ -24,12 +21,6 @@ function EditProfile() {
   }, [dispatch]);
 
   const { userName, firstName, lastName } = useSelector(userSelector);
-  
-  useEffect(() => {
-    if (isError) {
-      dispatch(clearState());
-    }
-  }, [isError, dispatch, navigate]);
 
   const onSubmit = async (data) => {
     dispatch(updateUserBytoken(data));
