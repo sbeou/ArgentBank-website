@@ -19,7 +19,6 @@ export const loginUser = createAsyncThunk(
         }
       );
       let data = await response.json();
-      console.log('response', data);
       if (response.status === 200) {
         localStorage.setItem('token', data.body.token);
         if(remember) {
@@ -57,11 +56,9 @@ export const fetchUserBytoken = createAsyncThunk(
         }
       );
       const data = await response.json();
-      console.log('data', data, response.status);
 
       if (response.status === 200) {
-        const dataUser = data
-        return dataUser ;
+        return data ;
       } else {
         return thunkAPI.rejectWithValue(data);
       }
@@ -92,11 +89,28 @@ export const updateUserBytoken = createAsyncThunk(
         }
       );
       const data = await response.json();
-      console.log('data', data, response.status);
 
       if (response.status === 200) {
-        const dataUserUpdated = data
-        return dataUserUpdated ;
+        return data ;
+      } else {
+        return thunkAPI.rejectWithValue(data);
+      }
+    } catch (e) {
+      console.log('Error', e.response.data);
+      return thunkAPI.rejectWithValue(e.response.data);
+    }
+  }
+);
+
+export const fetchAccount = createAsyncThunk(
+  'users/fetchAccount',
+  async ( thunkAPI) => {
+    try {
+      const response = await fetch('/accountData.json');
+      const data = await response.json();
+
+      if (response.status === 200) {
+        return data ;
       } else {
         return thunkAPI.rejectWithValue(data);
       }
@@ -147,9 +161,9 @@ export const userSlice = createSlice({
     [fetchUserBytoken.fulfilled]: (state, { payload }) => {
       state.isFetching = false;
       state.isSuccess = true;
-      state.userName = payload.body.userName;
-      state.firstName = payload.body.firstName;
-      state.lastName = payload.body.lastName;
+      state.username = payload.body.userName;
+      state.firstname = payload.body.firstName;
+      state.lastname = payload.body.lastName;
     },
     [fetchUserBytoken.rejected]: (state) => {
       console.log('fetchUserBytoken');
@@ -162,12 +176,26 @@ export const userSlice = createSlice({
     [updateUserBytoken.fulfilled]: (state, { payload }) => {
       state.isFetching = false;
       state.isSuccess = true;
-      state.userName = payload.body.userName;
-      state.firstName = payload.body.firstName;
-      state.lastName = payload.body.lastName;
+      state.username = payload.body.userName;
+      state.firstname = payload.body.firstName;
+      state.lastname = payload.body.lastName;
     },
     [updateUserBytoken.rejected]: (state) => {
       console.log('updateUserBytoken');
+      state.isFetching = false;
+      state.isError = true;
+    },
+
+    [fetchAccount.pending]: (state) => {
+      state.isFetching = true;
+    },
+    [fetchAccount.fulfilled]: (state, { payload }) => {
+      state.isFetching = false;
+      state.isSuccess = true;
+      state.account = payload;
+    },
+    [fetchAccount.rejected]: (state) => {
+      console.log('fetchAccount');
       state.isFetching = false;
       state.isError = true;
     },

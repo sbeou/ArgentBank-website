@@ -3,9 +3,9 @@ import "./editProfileStyle.scss"
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux'
 import { Loader, LoaderWrapper } from "../../utils/loader";
-import { userSelector, clearState, updateUserBytoken } from "../../features/UserSlices";
+import { userSelector, clearState, updateUserBytoken, fetchUserBytoken } from "../../features/UserSlices";
 
-function EditProfile() {
+function EditProfile({token}) {
   const { register, handleSubmit, formState: { errors } } = useForm()
   const [visible, setVisible] = useState('close')
   const [message, setMessage] = useState("")
@@ -14,13 +14,11 @@ function EditProfile() {
     setMessage('')
   }
   const dispatch = useDispatch();
-  const { isFetching, isSuccess, isError, errorMessage } = useSelector(userSelector);
+  const { isFetching, isSuccess, isError, errorMessage, username, firstname, lastname } = useSelector(userSelector);
   useEffect(() => {
-    dispatch(updateUserBytoken());
+    dispatch(fetchUserBytoken({token: token}));
     dispatch(clearState());
-  }, [dispatch]);
-
-  const { userName, firstName, lastName } = useSelector(userSelector);
+  }, [dispatch,token]);
 
   const onSubmit = async (data) => {
     dispatch(updateUserBytoken(data));
@@ -43,7 +41,6 @@ function EditProfile() {
       setMessage("User name update !")
     }
   }, [dispatch,isError, isSuccess, errorMessage, setMessage]);
-  
 
   return (
     <section className="profile">
@@ -54,7 +51,7 @@ function EditProfile() {
     ) : (
       <>
         <div className="header">
-          <h1>Welcome back<br />{firstName} {lastName} !</h1>
+          <h1>Welcome back<br />{firstname} {lastname} !</h1>
           <button className="edit-button" onClick={() => setCollapse()}>Edit Name</button>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className={`bgw collapse ${visible}`}>
@@ -64,8 +61,9 @@ function EditProfile() {
               type="text" 
               id='userName' 
               name='userName'
-              {...register("userName", { required: true })} 
-              defaultValue={userName}
+              defaultValue={username}
+              placeholder={username}
+              {...register("userName", { required: true })}  
             />
             {errors.userName && <span>This field is required</span>}
           </div>
@@ -76,7 +74,7 @@ function EditProfile() {
               id='firstName' 
               name='firstName'
               disabled 
-              defaultValue={firstName}
+              defaultValue={firstname}
             />
           </div>
           <div className="input-wrapper">
@@ -86,7 +84,7 @@ function EditProfile() {
               id='lastName' 
               name='lastName'
               disabled 
-              defaultValue={lastName}
+              defaultValue={lastname}
             />
           </div>
           <p>{message}</p>

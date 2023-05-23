@@ -15,14 +15,12 @@ function Header() {
   }
 
   const dispatch = useDispatch();
-  const { isError } = useSelector(userSelector);
   useEffect(() => {
     if(token != null) {
       dispatch(fetchUserBytoken({token: token}));
     }
   }, [dispatch, token]);
-
-  const { userName } = useSelector(userSelector);
+  const { isError, username } = useSelector(userSelector);
   useEffect(() => {
     return () => {
       dispatch(clearState());
@@ -40,7 +38,7 @@ function Header() {
       <>
       <NavLink activeclassname='active' className="main-nav-item" to={'/user'}>
         <i className="fa fa-user-circle"></i>
-        {userName}
+        {username}
       </NavLink>
       <Link className="main-nav-item" onClick={logout}>
         <i className="fa fa-sign-out"></i>

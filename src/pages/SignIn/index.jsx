@@ -10,7 +10,6 @@ function SignIn() {
   const dispatch = useDispatch();
   const { register, handleSubmit, formState: { errors } } = useForm()
   let token = localStorage.getItem("token")
-  
   const { isSuccess, isError, errorMessage } = useSelector(
     userSelector
   );
@@ -29,17 +28,12 @@ function SignIn() {
       console.log(errorMessage);
       dispatch(clearState());
     }
-
-    if (isSuccess) {
+    if (isSuccess && token != null) {
       dispatch(clearState());
       navigate('/user');
     }
-    if(token != null) {
-      dispatch(clearState());
-      navigate("/user")
-    }
   }, [dispatch,isError, isSuccess, errorMessage, navigate, token]);
-
+  
   let rmb = {
     'email': localStorage.getItem("email"),
     'password': localStorage.getItem("psw")
