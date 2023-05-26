@@ -20,7 +20,7 @@ function User() {
         dispatch(fetchAccount());
     }, [dispatch]);
     
-    const { isError, account, isSuccess } = useSelector(userSelector);
+    const { isError, account, isFetching } = useSelector(userSelector);
     
     useEffect(() => {
         return () => {
@@ -37,7 +37,7 @@ function User() {
         <main className="main bg-dark">
             <EditProfile token={token} />
             <h2 className="sr-only">Accounts</h2>
-            {isSuccess ? (
+            {isFetching ? (
             <LoaderWrapper>
                 <Loader />
             </LoaderWrapper>    

@@ -61,9 +61,10 @@ function EditProfile({token}) {
               type="text" 
               id='userName' 
               name='userName'
-              defaultValue={username}
+              
               placeholder={username}
-              {...register("userName", { required: true })}  
+              {...register("userName", { required: true })} 
+              defaultValue={username} 
             />
             {errors.userName && <span>This field is required</span>}
           </div>
