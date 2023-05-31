@@ -9,7 +9,6 @@ import { Loader, LoaderWrapper } from '../../utils/loader';
 
 function User() {
     let token = localStorage.getItem("token")
-    console.log(token)
     const navigate = useNavigate()
     if(token === null) {
         navigate("/signIn")
